@@ -24,6 +24,17 @@
         <label for="description">Description (optional):</label>
         <textarea id="description" name="description" placeholder="Brief description of the course..."></textarea>
 
+        <label for="teacher">Teacher:</label>
+        {% if teachers %}
+        <select id="teacher" name="teacher_id" required>
+            {% for teacher in teachers %}
+            <option value="{{ teacher.id }}">{{ teacher.name }} ({{ teacher.email }})</option>
+            {% endfor %}
+        </select>
+        {% else %}
+        <p>No teachers yet. <a href="{{ url_for('add_teacher') }}">Add a teacher</a> before creating a course.</p>
+        {% endif %}
+
         <button type="submit" class="btn btn-submit">Add Course</button>
         <a href="{{ url_for('courses') }}" class="btn btn-cancel">Cancel</a>
     </form>

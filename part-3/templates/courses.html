@@ -22,7 +22,14 @@
     <nav>
         <a href="{{ url_for('index') }}">Students</a>
         <a href="{{ url_for('courses') }}">Courses</a>
+        <a href="{{ url_for('teachers_view') }}">Teachers</a>
     </nav>
+
+    {% if teacher %}
+        <h2>Courses by {{ teacher.name }}</h2>
+        <a href="{{ url_for('courses') }}">Show all courses</a>
+        <hr>
+    {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -42,6 +49,7 @@
             <span class="student-count">{{ course.students|length }} students enrolled</span>
             <!-- course.students gives us all students in this course (relationship magic!) -->
         </p>
+        <p>Teacher: <a href="{{ url_for('courses_by_teacher', teacher_id=course.teacher.id) }}">{{ course.teacher.name }}</a></p>
     </div>
     {% else %}
     <p>No courses yet.</p>

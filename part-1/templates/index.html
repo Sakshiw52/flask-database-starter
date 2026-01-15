@@ -1,46 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Part 1 - Basic Flask + SQLite</title>
+    <title>Flask + SQLite (Courses)</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
         h1 { color: #333; }
         table { border-collapse: collapse; width: 100%; background: white; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
+        th { background-color: #2196F3; color: white; }
         tr:nth-child(even) { background-color: #f2f2f2; }
-        .btn { display: inline-block; padding: 10px 20px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; margin: 10px 0; }
-        .btn:hover { background: #45a049; }
+        .btn { display: inline-block; padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .btn:hover { background: #1976D2; }
         .empty { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
-    <h1>Student List (Part 1 - Basic Database)</h1>
 
-    <a href="/add" class="btn">+ Add Sample Student</a>
+    <h1>Course List</h1>
 
-    {% if students %}
+    <a href="/add" class="btn">+ Add Sample Course</a>
+
+    {% if courses %}
         <table>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Course</th>
+                <th>Course Title</th>
+                <th>Instructor</th>
+                <th>Duration</th>
             </tr>
-            {% for student in students %}
+            {% for course in courses %}
             <tr>
-                <td>{{ student['id'] }}</td>
-                <td>{{ student['name'] }}</td>
-                <td>{{ student['email'] }}</td>
-                <td>{{ student['course'] }}</td>
+                <td>{{ course['id'] }}</td>
+                <td>{{ course['title'] }}</td>
+                <td>{{ course['instructor'] }}</td>
+                <td>{{ course['duration'] }}</td>
             </tr>
             {% endfor %}
         </table>
     {% else %}
-        <p class="empty">No students yet. Click the button above to add one!</p>
+        <p class="empty">No courses available. Click the button to add one.</p>
     {% endif %}
 
     <hr>
-    <p><strong>What you learned:</strong> Connecting to SQLite, SELECT query, displaying data</p>
+    <p><strong>Learning:</strong> Flask + SQLite with a new database table</p>
+
 </body>
 </html>

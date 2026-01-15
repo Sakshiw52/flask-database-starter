@@ -46,14 +46,27 @@ def init_db():
 # CREATE - Add new student
 # =============================================================================
 
-@app.route('/add', methods=['GET', 'POST'])  # Allow both GET and POST
+@app.route('/add', methods=['GET', 'POST'])
 def add_student():
-    if request.method == 'POST':  # Form was submitted
-        name = request.form['name']  # Get data from form field named 'name'
+    if request.method == 'POST':
+        name = request.form['name']
         email = request.form['email']
         course = request.form['course']
 
         conn = get_db_connection()
+
+        # CHECK IF EMAIL ALREADY EXISTS
+        existing = conn.execute(
+            'SELECT * FROM students WHERE email = ?',
+            (email,)
+        ).fetchone()
+
+        if existing:
+            conn.close()
+            flash('Email already exists! Use a different email.', 'danger')
+            return redirect(url_for('add_student'))
+
+        # INSERT IF EMAIL IS UNIQUE
         conn.execute(
             'INSERT INTO students (name, email, course) VALUES (?, ?, ?)',
             (name, email, course)
@@ -61,21 +74,37 @@ def add_student():
         conn.commit()
         conn.close()
 
-        flash('Student added successfully!', 'success')  # Show success message
-        return redirect(url_for('index'))  # Go back to home page
+        flash('Student added successfully!', 'success')
+        return redirect(url_for('index'))
 
-    return render_template('add.html')  # GET request: show empty form
+    return render_template('add.html')
 
 
-# =============================================================================
 # READ - Display all students
-# =============================================================================
-
 @app.route('/')
 def index():
     conn = get_db_connection()
-    students = conn.execute('SELECT * FROM students ORDER BY id DESC').fetchall()  # Newest first
+    students = conn.execute(
+        'SELECT * FROM students ORDER BY id DESC'
+    ).fetchall()
     conn.close()
+    return render_template('index.html', students=students)
+
+
+# ===============================
+# SEARCH - Find student by name
+# ===============================
+@app.route('/search', methods=['GET'])
+def search_student():
+    query = request.args.get('q')
+
+    conn = get_db_connection()
+    students = conn.execute(
+        "SELECT * FROM students WHERE name LIKE ?",
+        ('%' + query + '%',)
+    ).fetchall()
+    conn.close()
+
     return render_template('index.html', students=students)
 
 

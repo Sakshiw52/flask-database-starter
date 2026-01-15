@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Course - Part 1</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        h1 { color: #333; }
+        form { background: white; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"] { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .btn { padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn-submit { background: #2196F3; color: white; }
+        .btn-cancel { background: #ccc; color: #333; margin-left: 10px; }
+        .btn:hover { opacity: 0.95; }
+    </style>
+</head>
+<body>
+    <h1>Add New Course</h1>
+
+    <form method="POST">
+        <label for="title">Course Title:</label>
+        <input type="text" id="title" name="title" required placeholder="Enter course title">
+
+        <label for="instructor">Instructor:</label>
+        <input type="text" id="instructor" name="instructor" required placeholder="Enter instructor name">
+
+        <label for="duration">Duration:</label>
+        <input type="text" id="duration" name="duration" required placeholder="e.g., 6 Weeks">
+
+        <button type="submit" class="btn btn-submit">Add Course</button>
+        <a href="{{ url_for('index') }}" class="btn btn-cancel">Cancel</a>
+    </form>
+
+    <hr>
+    <p><strong>Tip:</strong> The input "name" attributes must match what the server reads from <code>request.form</code>.</p>
+</body>
+</html>

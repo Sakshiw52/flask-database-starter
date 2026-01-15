@@ -51,14 +51,43 @@ class Book(db.Model):
 # REST API ROUTES
 # =============================================================================
 
-# GET /api/books - Get all books
+# GET /api/books - Get books with optional pagination and sorting
 @app.route('/api/books', methods=['GET'])
 def get_books():
-    books = Book.query.all()
-    return jsonify({  # Return JSON response
+    query = Book.query
+
+    # Sorting (prevent arbitrary attribute access by limiting allowed fields)
+    sort = request.args.get('sort', 'id')
+    order = request.args.get('order', 'asc')
+    allowed_sort = {'id', 'title', 'author', 'year', 'isbn', 'created_at'}
+    if sort not in allowed_sort:
+        sort = 'id'
+
+    sort_col = getattr(Book, sort)
+    if order == 'desc':
+        query = query.order_by(sort_col.desc())
+    else:
+        query = query.order_by(sort_col.asc())
+
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    if page < 1:
+        page = 1
+    if per_page < 1:
+        per_page = 10
+
+    total = query.count()
+    items = query.offset((page - 1) * per_page).limit(per_page).all()
+    total_pages = (total + per_page - 1) // per_page if per_page else 0
+
+    return jsonify({
         'success': True,
-        'count': len(books),
-        'books': [book.to_dict() for book in books]  # List comprehension to convert all
+        'page': page,
+        'per_page': per_page,
+        'total_pages': total_pages,
+        'total_items': total,
+        'books': [book.to_dict() for book in items]
     })
 
 
@@ -219,67 +248,99 @@ def index():
             code { background: #0f3460; padding: 2px 6px; border-radius: 3px; }
             pre { background: #0f3460; padding: 15px; border-radius: 8px; overflow-x: auto; }
             a { color: #e94560; }
+            .control { background: #0f3460; padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #233044; }
         </style>
     </head>
     <body>
         <h1>Part 4: REST API Demo</h1>
-        <p>This is a JSON API - use curl, Postman, or JavaScript fetch() to test!</p>
+        <p>This is a JSON API - use curl, Postman, or the built-in JavaScript frontend below to test!</p>
 
         <h2>API Endpoints:</h2>
 
         <div class="endpoint">
             <span class="method get">GET</span>
-            <code>/api/books</code> - Get all books
+            <code>/api/books</code> - Get all books (supports <code>page</code>, <code>per_page</code>, <code>sort</code>, <code>order</code>)
             <br><a href="/api/books" target="_blank">Try it →</a>
         </div>
 
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/api/books/&lt;id&gt;</code> - Get single book
+        <!-- simple frontend demo -->
+        <h2>Frontend Demo (fetch)</h2>
+        <div class="control">
+            <label>Page: <input id="page" type="number" value="1" min="1" style="width:70px"></label>
+            <label>Per page: <input id="per_page" type="number" value="5" min="1" style="width:70px"></label>
+            <label>Sort: 
+                <select id="sort">
+                    <option value="id">id</option>
+                    <option value="title">title</option>
+                    <option value="author">author</option>
+                    <option value="year">year</option>
+                    <option value="created_at">created_at</option>
+                </select>
+            </label>
+            <label>Order: 
+                <select id="order">
+                    <option value="asc">asc</option>
+                    <option value="desc">desc</option>
+                </select>
+            </label>
+            <button onclick="fetchBooks()">Fetch</button>
         </div>
 
-        <div class="endpoint">
-            <span class="method post">POST</span>
-            <code>/api/books</code> - Create new book
+        <div id="results">
+            <p>Click <strong>Fetch</strong> to load books.</p>
         </div>
 
-        <div class="endpoint">
-            <span class="method put">PUT</span>
-            <code>/api/books/&lt;id&gt;</code> - Update book
-        </div>
+        <script>
+            async function fetchBooks() {
+                const page = document.getElementById('page').value;
+                const per_page = document.getElementById('per_page').value;
+                const sort = document.getElementById('sort').value;
+                const order = document.getElementById('order').value;
+                const url = `/api/books?page=${page}&per_page=${per_page}&sort=${sort}&order=${order}`;
 
-        <div class="endpoint">
-            <span class="method delete">DELETE</span>
-            <code>/api/books/&lt;id&gt;</code> - Delete book
-        </div>
+                const res = await fetch(url);
+                const data = await res.json();
+                const container = document.getElementById('results');
 
-        <div class="endpoint">
-            <span class="method get">GET</span>
-            <code>/api/books/search?q=&lt;title&gt;&author=&lt;name&gt;</code> - Search books
-        </div>
+                if (!data.success) {
+                    container.innerHTML = `<p style="color: #ff8080">Error loading books</p>`;
+                    return;
+                }
+
+                let html = `<p>Showing page ${data.page} of ${data.total_pages} (total ${data.total_items} books)</p>`;
+                html += `<table><thead><tr><th>ID</th><th>Title</th><th>Author</th><th>Year</th><th>ISBN</th></tr></thead><tbody>`;
+                for (const b of data.books) {
+                    html += `<tr><td>${b.id}</td><td>${b.title}</td><td>${b.author}</td><td>${b.year || ''}</td><td>${b.isbn || ''}</td></tr>`;
+                }
+                html += `</tbody></table>`;
+                html += `<div style="margin-top:8px;"><button onclick="prev()">Prev</button> <button onclick="next()">Next</button></div>`;
+
+                container.innerHTML = html;
+            }
+
+            function prev() {
+                const p = document.getElementById('page');
+                let v = parseInt(p.value, 10);
+                if (v > 1) { p.value = v - 1; fetchBooks(); }
+            }
+            function next() {
+                const p = document.getElementById('page');
+                p.value = parseInt(p.value, 10) + 1;
+                fetchBooks();
+            }
+
+            // initial load
+            fetchBooks();
+        </script>
 
         <h2>Test with curl:</h2>
         <pre>
-# Get all books
-curl http://localhost:5000/api/books
+# Get all books (with pagination & sorting)
+curl "http://localhost:5000/api/books?page=1&per_page=5&sort=title&order=asc"
 
-# Create a book
-curl -X POST http://localhost:5000/api/books \\
-  -H "Content-Type: application/json" \\
-  -d '{"title": "Flask Web Development", "author": "Miguel Grinberg", "year": 2018}'
-
-# Update a book
-curl -X PUT http://localhost:5000/api/books/1 \\
-  -H "Content-Type: application/json" \\
-  -d '{"year": 2023}'
-
-# Delete a book
-curl -X DELETE http://localhost:5000/api/books/1
-        </pre>
-    </body>
-    </html>
     '''
-
 
 # =============================================================================
 # INITIALIZE DATABASE WITH SAMPLE DATA
