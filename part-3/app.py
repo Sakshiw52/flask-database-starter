@@ -239,7 +239,12 @@ if __name__ == '__main__':
 # EXERCISE:
 # =============================================================================
 #
-# 1. Add a `Teacher` model with a relationship to Course
+# 1. Add a `Teacher` model with a relationship to Course 
+# (have one Course can be taught by many Teachers and one Teacher can only teach only one Course)
+# In other words, create new Teacher model exactly like Student with all others things same 
+# (relationship between the two, frontend page for teacher list, add new teacher, backend routes for add new teacher, edit teacher, delete teacher)
+# Additional exercise - display list of students with course name and teacher name (taken from the course name) and vice versa
+
 # 2. Try different query methods: `filter()`, `order_by()`, `limit()`
 #
 # =============================================================================

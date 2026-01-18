@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Library Manager | REST API Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --gradient-secondary: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
+            --gradient-accent: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 25px 30px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h1 i {
+            color: var(--accent);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: white;
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn:hover {
+            background: #f0f2f5;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-info {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: var(--dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .pagination-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-title {
+            font-size: 1.3rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Messages */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message-success {
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .message-error {
+            background: rgba(230, 57, 70, 0.15);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .message-info {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* API Docs */
+        .api-docs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .api-endpoint {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border-left: 5px solid var(--primary);
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .method-get { background: #27ae60; color: white; }
+        .method-post { background: #f39c12; color: white; }
+        .method-put { background: #3498db; color: white; }
+        .method-delete { background: #e74c3c; color: white; }
+
+        .endpoint-url {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: block;
+            color: var(--dark);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div>
+                <h1><i class="fas fa-book-open"></i> Author & Book Management Dashboard</h1>
+                <p>Manage your books and authors with our powerful REST API Dashboard</p>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="booksCount">0</div>
+                    <div class="stat-label">Books</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="authorsCount">0</div>
+                    <div class="stat-label">Authors</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="apiCalls">0</div>
+                    <div class="stat-label">API Calls</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('books')">
+                <i class="fas fa-book"></i> Books Management
+            </button>
+            <button class="tab-btn" onclick="switchTab('authors')">
+                <i class="fas fa-user-edit"></i> Authors Management
+            </button>
+            <button class="tab-btn" onclick="switchTab('search')">
+                <i class="fas fa-search"></i> Search & Filter
+            </button>
+            <button class="tab-btn" onclick="switchTab('api')">
+                <i class="fas fa-code"></i> API Documentation
+            </button>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="books-tab" class="tab-content active">
+            <div class="dashboard-grid">
+                <!-- Create Book Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-plus-circle"></i> Add New Book</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookTitle"><i class="fas fa-heading"></i> Book Title</label>
+                            <input type="text" id="bookTitle" placeholder="Enter book title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookAuthor"><i class="fas fa-user"></i> Author Name</label>
+                            <input type="text" id="bookAuthor" placeholder="Enter author name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookYear"><i class="fas fa-calendar-alt"></i> Publication Year</label>
+                            <input type="number" id="bookYear" placeholder="2024" min="1000" max="2100">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookIsbn"><i class="fas fa-barcode"></i> ISBN Number</label>
+                            <input type="text" id="bookIsbn" placeholder="978-XXXXXXXXXX">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookAuthorId"><i class="fas fa-link"></i> Link to Existing Author (Optional)</label>
+                        <select id="bookAuthorId">
+                            <option value="">Select an author...</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="createBook()">
+                        <i class="fas fa-save"></i> Save Book
+                    </button>
+                    <div id="bookMessage"></div>
+                </div>
+
+                <!-- Books List Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-list"></i> Books Collection</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-success" onclick="loadBooks()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-sort"></i> Sort By</label>
+                            <select id="bookSort" onchange="loadBooks()">
+                                <option value="id">ID</option>
+                                <option value="title">Title</option>
+                                <option value="author">Author</option>
+                                <option value="year">Year</option>
+                                <option value="created_at">Date Added</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-sort-amount-down"></i> Order</label>
+                            <select id="bookOrder" onchange="loadBooks()">
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Year</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="booksList">
+                                <tr>
+                                    <td colspan="5" class="loading">
+                                        <i class="fas fa-spinner fa-spin"></i><br>
+                                        Loading books...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="bookPagination">
+                        <!-- Pagination buttons will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authors Tab -->
+        <div id="authors-tab" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- Create Author Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-user-plus"></i> Add New Author</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="authorName"><i class="fas fa-user-tag"></i> Author Name</label>
+                        <input type="text" id="authorName" placeholder="Enter author's full name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="authorCity"><i class="fas fa-city"></i> City</label>
+                            <input type="text" id="authorCity" placeholder="Author's city">
+                        </div>
+                        <div class="form-group">
+                            <label for="authorBooks"><i class="fas fa-book"></i> Books Count</label>
+                            <input type="text" id="authorBooks" placeholder="0" disabled style="background: #f8f9fa;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="authorBio"><i class="fas fa-info-circle"></i> Biography</label>
+                        <textarea id="authorBio" placeholder="Enter author's biography..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="createAuthor()">
+                        <i class="fas fa-user-check"></i> Save Author
+                    </button>
+                    <div id="authorMessage"></div>
+                </div>
+
+                <!-- Authors List Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-users"></i> Authors Directory</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-success" onclick="loadAuthors()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>City</th>
+                                    <th>Books</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="authorsList">
+                                <tr>
+                                    <td colspan="5" class="loading">
+                                        <i class="fas fa-spinner fa-spin"></i><br>
+                                        Loading authors...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="authorPagination">
+                        <!-- Pagination buttons will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search-tab" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- Search Books Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-search"></i> Search Books</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-book"></i> Title Contains</label>
+                            <input type="text" id="searchTitle" placeholder="Search by title...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Author Name</label>
+                            <input type="text" id="searchAuthor" placeholder="Search by author...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Publication Year</label>
+                            <input type="number" id="searchYear" placeholder="Filter by year...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tie"></i> Author ID</label>
+                            <input type="number" id="searchAuthorId" placeholder="Filter by author ID...">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchBooks()">
+                        <i class="fas fa-search"></i> Search Books
+                    </button>
+                    <div class="search-results" id="searchBookResults"></div>
+                </div>
+
+                <!-- Search Authors Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-user-search"></i> Search Authors</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag"></i> Author Name</label>
+                            <input type="text" id="searchAuthorName" placeholder="Search by author name...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-city"></i> City</label>
+                            <input type="text" id="searchAuthorCity" placeholder="Search by city...">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchAuthors()">
+                        <i class="fas fa-search"></i> Search Authors
+                    </button>
+                    <div class="search-results" id="searchAuthorResults"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Documentation Tab -->
+        <div id="api-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-code"></i> REST API Documentation</h2>
+                </div>
+                <div class="api-docs">
+                    <!-- Books API -->
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-method method-post">POST</span>
+                        <span class="endpoint-method method-put">PUT</span>
+                        <span class="endpoint-method method-delete">DELETE</span>
+                        <span class="endpoint-url">/api/books</span>
+                        <p><strong>Books Resource</strong> - Full CRUD operations for books with pagination and sorting support.</p>
+                        <p><strong>Query Parameters:</strong> page, per_page, sort, order</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-method method-put">PUT</span>
+                        <span class="endpoint-method method-delete">DELETE</span>
+                        <span class="endpoint-url">/api/books/{id}</span>
+                        <p><strong>Single Book</strong> - Get, update, or delete a specific book by ID.</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-method method-post">POST</span>
+                        <span class="endpoint-method method-put">PUT</span>
+                        <span class="endpoint-method method-delete">DELETE</span>
+                        <span class="endpoint-url">/api/authors</span>
+                        <p><strong>Authors Resource</strong> - Full CRUD operations for authors.</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-url">/api/books/search</span>
+                        <p><strong>Search Books</strong> - Search books by title, author, year, or author ID.</p>
+                        <p><strong>Query Parameters:</strong> q, author, year, author_id</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-url">/api/authors/search</span>
+                        <p><strong>Search Authors</strong> - Search authors by name or city.</p>
+                        <p><strong>Query Parameters:</strong> name, city</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-url">/api/authors/{id}</span>
+                        <p><strong>Author with Books</strong> - Get author details along with their books.</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: var(--radius);">
+                    <h3><i class="fas fa-terminal"></i> cURL Examples</h3>
+                    <pre style="background: var(--dark); color: white; padding: 15px; border-radius: 8px; overflow-x: auto;">
+# Get all books with pagination
+curl "http://localhost:5000/api/books?page=1&per_page=5&sort=title&order=asc"
+
+# Create a new book
+curl -X POST http://localhost:5000/api/books \
+  -H "Content-Type: application/json" \
+  -d '{"title": "New Book", "author": "Author Name", "year": 2024}'
+
+# Search books by title
+curl "http://localhost:5000/api/books/search?q=python"
+
+# Get all authors
+curl "http://localhost:5000/api/authors"
+
+# Create a new author
+curl -X POST http://localhost:5000/api/authors \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Jane Doe", "city": "New York", "bio": "Famous author"}'
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentBookPage = 1;
+        let currentAuthorPage = 1;
+        let apiCallCount = 0;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+            
+            // Load data if needed
+            if (tabName === 'books') {
+                loadBooks();
+            } else if (tabName === 'authors') {
+                loadAuthors();
+            }
+        }
+
+        // Track API calls
+        function trackApiCall() {
+            apiCallCount++;
+            document.getElementById('apiCalls').textContent = apiCallCount;
+        }
+
+        // Show message
+        function showMessage(elementId, message, type = 'success') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div class="message message-${type}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        }
+
+        // Load books
+        async function loadBooks(page = 1) {
+            currentBookPage = page;
+            const sort = document.getElementById('bookSort').value;
+            const order = document.getElementById('bookOrder').value;
+            
+            const booksList = document.getElementById('booksList');
+            booksList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i><br>
+                        Loading books...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`/api/books?page=${page}&per_page=5&sort=${sort}&order=${order}`);
+                trackApiCall();
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update books count
+                    document.getElementById('booksCount').textContent = data.total_items;
+                    
+                    // Render books table
+                    if (data.books.length === 0) {
+                        booksList.innerHTML = `
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px;">
+                                    <i class="fas fa-book" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                                    <p>No books found. Add your first book!</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        booksList.innerHTML = data.books.map(book => `
+                            <tr>
+                                <td><span class="badge badge-info">#${book.id}</span></td>
+                                <td><strong>${book.title}</strong></td>
+                                <td>${book.author}</td>
+                                <td>${book.year || '<span style="color: #999;">N/A</span>'}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-success" onclick="editBook(${book.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.id})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+
+                    // Render pagination
+                    renderPagination('bookPagination', data.page, data.total_pages, 'loadBooks');
+                    
+                    // Load authors for dropdown
+                    loadAuthorsForSelect();
+                }
+            } catch (error) {
+                booksList.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger); padding: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i><br>
+                            Error loading books: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Load authors
+        async function loadAuthors(page = 1) {
+            currentAuthorPage = page;
+            const authorsList = document.getElementById('authorsList');
+            authorsList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i><br>
+                        Loading authors...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`/api/authors?page=${page}&per_page=5`);
+                trackApiCall();
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update authors count
+                    document.getElementById('authorsCount').textContent = data.total_items;
+                    
+                    // Render authors table
+                    if (data.authors.length === 0) {
+                        authorsList.innerHTML = `
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px;">
+                                    <i class="fas fa-user" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                                    <p>No authors found. Add your first author!</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        authorsList.innerHTML = data.authors.map(author => `
+                            <tr>
+                                <td><span class="badge badge-info">#${author.id}</span></td>
+                                <td><strong>${author.name}</strong></td>
+                                <td>${author.city || '<span style="color: #999;">N/A</span>'}</td>
+                                <td><span class="badge badge-success">${author.books_count} books</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success" onclick="viewAuthor(${author.id})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" onclick="editAuthor(${author.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteAuthor(${author.id})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+
+                    // Render pagination
+                    renderPagination('authorPagination', data.page, data.total_pages, 'loadAuthors');
+                }
+            } catch (error) {
+                authorsList.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger); padding: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i><br>
+                            Error loading authors: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Load authors for dropdown
+        async function loadAuthorsForSelect() {
+            try {
+                const response = await fetch('/api/authors');
+                trackApiCall();
+                const data = await response.json();
+                const select = document.getElementById('bookAuthorId');
+                
+                if (data.success) {
+                    select.innerHTML = '<option value="">Select an author...</option>';
+                    data.authors.forEach(author => {
+                        const option = document.createElement('option');
+                        option.value = author.id;
+                        option.textContent = `${author.name} (${author.city || 'Unknown'}) - ${author.books_count} books`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading authors for select:', error);
+            }
+        }
+
+        // Create book
+        async function createBook() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const year = document.getElementById('bookYear').value;
+            const isbn = document.getElementById('bookIsbn').value.trim();
+            const authorId = document.getElementById('bookAuthorId').value;
+
+            if (!title || !author) {
+                showMessage('bookMessage', 'Title and author are required!', 'error');
+                return;
+            }
+
+            const bookData = {
+                title: title,
+                author: author,
+                year: year || null,
+                isbn: isbn || null,
+                author_id: authorId || null
+            };
+
+            try {
+                const response = await fetch('/api/books', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookData)
+                });
+                trackApiCall();
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('bookMessage', 'Book created successfully!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('bookTitle').value = '';
+                    document.getElementById('bookAuthor').value = '';
+                    document.getElementById('bookYear').value = '';
+                    document.getElementById('bookIsbn').value = '';
+                    document.getElementById('bookAuthorId').value = '';
+                    
+                    // Reload books list
+                    loadBooks(currentBookPage);
+                } else {
+                    showMessage('bookMessage', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('bookMessage', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Create author
+        async function createAuthor() {
+            const name = document.getElementById('authorName').value.trim();
+            const city = document.getElementById('authorCity').value.trim();
+            const bio = document.getElementById('authorBio').value.trim();
+
+            if (!name) {
+                showMessage('authorMessage', 'Author name is required!', 'error');
+                return;
+            }
+
+            const authorData = {
+                name: name,
+                city: city || null,
+                bio: bio || null
+            };
+
+            try {
+                const response = await fetch('/api/authors', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(authorData)
+                });
+                trackApiCall();
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('authorMessage', 'Author created successfully!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('authorName').value = '';
+                    document.getElementById('authorCity').value = '';
+                    document.getElementById('authorBio').value = '';
+                    
+                    // Reload authors list
+                    loadAuthors(currentAuthorPage);
+                    
+                    // Refresh authors dropdown
+                    loadAuthorsForSelect();
+                } else {
+                    showMessage('authorMessage', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('authorMessage', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Edit book
+        async function editBook(id) {
+            const newTitle = prompt('Enter new title:');
+            const newAuthor = prompt('Enter new author:');
+            const newYear = prompt('Enter new year:');
+            
+            if (!newTitle && !newAuthor && !newYear) return;
+
+            const updateData = {};
+            if (newTitle) updateData.title = newTitle;
+            if (newAuthor) updateData.author = newAuthor;
+            if (newYear) updateData.year = newYear;
+
+            try {
+                const response = await fetch(`/api/books/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                trackApiCall();
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('bookMessage', 'Book updated successfully!', 'success');
+                    loadBooks(currentBookPage);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Delete book
+        async function deleteBook(id) {
+            if (!confirm('Are you sure you want to delete this book?')) return;
+
+            try {
+                const response = await fetch(`/api/books/${id}`, {
+                    method: 'DELETE'
+                });
+                trackApiCall();
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('bookMessage', 'Book deleted successfully!', 'success');
+                    loadBooks(currentBookPage);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // View author details
+        async function viewAuthor(id) {
+            try {
+                const response = await fetch(`/api/authors/${id}`);
+                trackApiCall();
+                const data = await response.json();
+                
+                if (data.success) {
+                    const author = data.author;
+                    const books = data.books;
+                    
+                    let html = `
+                        <div class="message message-info">
+                            <i class="fas fa-user"></i>
+                            <strong>${author.name}</strong>
+                        </div>
+                        <p><strong>City:</strong> ${author.city || 'Not specified'}</p>
+                        <p><strong>Bio:</strong> ${author.bio || 'No biography available'}</p>
+                        <p><strong>Books:</strong> ${books.length}</p>
+                    `;
+                    
+                    if (books.length > 0) {
+                        html += '<ul style="margin-top: 15px; padding-left: 20px;">';
+                        books.forEach(book => {
+                            html += `<li><strong>${book.title}</strong> (${book.year || 'N/A'})</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    
+                    showMessage('authorMessage', html, 'info');
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Edit author
+        async function editAuthor(id) {
+            const newName = prompt('Enter new name:');
+            const newCity = prompt('Enter new city:');
+            const newBio = prompt('Enter new biography:');
+            
+            if (!newName && !newCity && !newBio) return;
+
+            const updateData = {};
+            if (newName) updateData.name = newName;
+            if (newCity) updateData.city = newCity;
+            if (newBio) updateData.bio = newBio;
+
+            try {
+                const response = await fetch(`/api/authors/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                trackApiCall();
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('authorMessage', 'Author updated successfully!', 'success');
+                    loadAuthors(currentAuthorPage);
+                    loadAuthorsForSelect();
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Delete author
+        async function deleteAuthor(id) {
+            if (!confirm('Are you sure you want to delete this author? This will also delete all their books.')) return;
+
+            try {
+                const response = await fetch(`/api/authors/${id}`, {
+                    method: 'DELETE'
+                });
+                trackApiCall();
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('authorMessage', 'Author deleted successfully!', 'success');
+                    loadAuthors(currentAuthorPage);
+                    loadAuthorsForSelect();
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Search books
+        async function searchBooks() {
+            const title = document.getElementById('searchTitle').value;
+            const author = document.getElementById('searchAuthor').value;
+            const year = document.getElementById('searchYear').value;
+            const authorId = document.getElementById('searchAuthorId').value;
+
+            let url = '/api/books/search?';
+            const params = [];
+            if (title) params.push(`q=${encodeURIComponent(title)}`);
+            if (author) params.push(`author=${encodeURIComponent(author)}`);
+            if (year) params.push(`year=${year}`);
+            if (authorId) params.push(`author_id=${authorId}`);
+            
+            if (params.length === 0) {
+                showMessage('searchBookResults', 'Please enter at least one search criteria', 'error');
+                return;
+            }
+
+            url += params.join('&');
+
+            try {
+                const response = await fetch(url);
+                trackApiCall();
+                const data = await response.json();
+                const container = document.getElementById('searchBookResults');
+
+                if (data.success) {
+                    let html = `<div class="message message-success">
+                        <i class="fas fa-search"></i>
+                        Found ${data.count} books
+                    </div>`;
+                    
+                    if (data.count > 0) {
+                        html += '<table><thead><tr><th>ID</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';
+                        data.books.forEach(book => {
+                            html += `<tr>
+                                <td>${book.id}</td>
+                                <td><strong>${book.title}</strong></td>
+                                <td>${book.author}</td>
+                                <td>${book.year || 'N/A'}</td>
+                            </tr>`;
+                        });
+                        html += '</tbody></table>';
+                    } else {
+                        html += '<p style="text-align: center; padding: 20px; color: #666;">No books found matching your criteria.</p>';
+                    }
+                    
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                showMessage('searchBookResults', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Search authors
+        async function searchAuthors() {
+            const name = document.getElementById('searchAuthorName').value;
+            const city = document.getElementById('searchAuthorCity').value;
+
+            let url = '/api/authors/search?';
+            const params = [];
+            if (name) params.push(`name=${encodeURIComponent(name)}`);
+            if (city) params.push(`city=${encodeURIComponent(city)}`);
+            
+            if (params.length === 0) {
+                showMessage('searchAuthorResults', 'Please enter at least one search criteria', 'error');
+                return;
+            }
+
+            url += params.join('&');
+
+            try {
+                const response = await fetch(url);
+                trackApiCall();
+                const data = await response.json();
+                const container = document.getElementById('searchAuthorResults');
+
+                if (data.success) {
+                    let html = `<div class="message message-success">
+                        <i class="fas fa-search"></i>
+                        Found ${data.count} authors
+                    </div>`;
+                    
+                    if (data.count > 0) {
+                        html += '<table><thead><tr><th>ID</th><th>Name</th><th>City</th><th>Books</th></tr></thead><tbody>';
+                        data.authors.forEach(author => {
+                            html += `<tr>
+                                <td>${author.id}</td>
+                                <td><strong>${author.name}</strong></td>
+                                <td>${author.city || 'N/A'}</td>
+                                <td>${author.books_count}</td>
+                            </tr>`;
+                        });
+                        html += '</tbody></table>';
+                    } else {
+                        html += '<p style="text-align: center; padding: 20px; color: #666;">No authors found matching your criteria.</p>';
+                    }
+                    
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                showMessage('searchAuthorResults', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Render pagination
+        function renderPagination(elementId, currentPage, totalPages, callbackFunction) {
+            const container = document.getElementById(elementId);
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Previous button
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="${callbackFunction}(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+
+            // Page numbers
+            const maxVisible = 5;
+            let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let end = Math.min(totalPages, start + maxVisible - 1);
+            
+            if (end - start + 1 < maxVisible) {
+                start = Math.max(1, end - maxVisible + 1);
+            }
+
+            for (let i = start; i <= end; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="${callbackFunction}(${i})">${i}</button>`;
+            }
+
+            // Next button
+            html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="${callbackFunction}(${currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            container.innerHTML = html;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBooks();
+            loadAuthors();
+            loadAuthorsForSelect();
+            
+            // Set up stats auto-refresh every 30 seconds
+            setInterval(() => {
+                fetch('/api/books')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('booksCount').textContent = data.total_items;
+                        }
+                    });
+                
+                fetch('/api/authors')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('authorsCount').textContent = data.total_items;
+                        }
+                    });
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
